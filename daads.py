@@ -70,7 +70,7 @@ def fetch_data(commodity_name, item_list, time_range):
     return static_data, df
 
 def plot_commodity_data(name, static_data, df):
-    dates = [dateutil.parser.parse(x) for x in df.index]
+    dates = pd.to_datetime(df.index)
     X = mdates.date2num(dates)
     fig, axs = plt.subplots(nrows=4, ncols=3, figsize=(20, 20))
     plt.subplots_adjust(hspace=0.5, wspace=0.3)
