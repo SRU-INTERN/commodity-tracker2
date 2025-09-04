@@ -47,7 +47,7 @@ commodities = {
     }
 }
 
-@st.cache
+@st.cache_data(ttl=3600)
 def fetch_data(commodity_name, item_list, time_range):
     # Determine the start date based on the selected time range
     time_map = {
