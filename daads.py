@@ -61,9 +61,7 @@ def fetch_data(commodity_name, item_list, time_range):
     # Fetch data for the selected time range
     df = ds.get_data(tickers=",".join(item_list), start=start_date, end=today_str)
 
-    
-    
-    # Fetch static data
+   
     static_data = ds.get_data(tickers=",".join(item_list), fields=list(summary_fields.keys()), kind=0)
     static_data = static_data.pivot(index='Instrument', columns='Datatype')["Value"]
     static_data = static_data[list(summary_fields.keys())].rename(columns=summary_fields)
@@ -77,7 +75,7 @@ def plot_commodity_data(name, static_data, df):
     for index in range(df.shape[1]):
         ax = axs[int(index/3), int(index%3)]
 
-        # ⬇️ Work per series to avoid NaN issues
+        
         s = df.iloc[:, index].dropna()
         if s.empty:
             ax.set_title("No recent data")
@@ -91,7 +89,7 @@ def plot_commodity_data(name, static_data, df):
         name_key = s.name[0] if isinstance(s.name, (list, tuple)) else s.name
         title = static_data.loc[name_key]['Name'] if (name_key in static_data.index and 'Name' in static_data.columns) else str(name_key)
 
-        # Trendline only if enough points
+        
         if len(s) >= 2:
             z = np.polyfit(X, y, 1)
             p = np.poly1d(z)
@@ -111,13 +109,13 @@ def plot_commodity_data(name, static_data, df):
     st.dataframe(static_data)
 
 
-# Streamlit app
+
 st.title('Commodity Overview Dashboard')
 
 commodity_options = list(commodities.keys())
 selected_commodity = st.selectbox('Select a commodity category', commodity_options)
 
-# Time range selection
+
 time_range = st.selectbox('Select time range', ['1Y', '2Y', '3Y', '5Y'])
 
 if selected_commodity:
