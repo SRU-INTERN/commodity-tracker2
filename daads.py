@@ -97,9 +97,9 @@ def plot_commodity_data(name, static_data, df):
         if name_key in static_data.index and 'Name' in static_data.columns:
             title = static_data.loc[name_key]['Name']
         else:
-    title = str(name_key)
-    if (name_key in static_data.index and 'Name' in static_data.columns) else str(name_key)
-    if len(s) >= 2:
+            title = str(name_key)
+            if (name_key in static_data.index and 'Name' in static_data.columns) else str(name_key)
+            if len(s) >= 2:
             z = np.polyfit(X, y, 1)
             p = np.poly1d(z)
             ax.plot(X, p(X), "r--")
