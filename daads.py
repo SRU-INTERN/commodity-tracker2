@@ -4,18 +4,20 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import DatastreamPy as dsweb
 import pandas as pd
-pip install --upgrade DatastreamPy
+import math
 
-# Initialize Datastream
-import DatastreamPy as dsweb
-
-# 直接写账号密码
+# ===========================
+# 账号密码（直接写在代码里）
+# ===========================
 username = "jiachen.tian@allianz-trade.com"
 password = "Sunmeiqing414516!"
 
 # 初始化 Datastream
 ds = dsweb.DataClient(None, username, password)
 
+# ===========================
+# 配置字段
+# ===========================
 summary_fields = {
     'NAME':'Name',
     'PCH#(X,-1M)':'(%) Change',
@@ -54,34 +56,34 @@ commodities = {
     }
 }
 
+# ===========================
+# 获取数据函数
+# ===========================
 @st.cache_data(ttl=600)
 def fetch_data(commodity_name, item_list, time_range):
-    # Determine the start date based on the selected time range
-    time_map = {
-        '1Y': '-1Y',
-        '2Y': '-2Y',
-        '3Y': '-3Y',
-        '5Y': '-5Y'
-    }
-    start_date = time_map.get(time_range, '-1Y')  # Default to 1Y
+    # 时间映射
+    time_map = {'1Y':'-1Y', '2Y':'-2Y', '3Y':'-3Y', '5Y':'-5Y'}
+    start_date = time_map.get(time_range, '-1Y')
 
-    # Fetch time series data
+    # 获取时间序列数据
     df = ds.get_data(tickers=",".join(item_list), start=start_date, kind=1)
 
-    # Fetch static snapshot
-    static_data = ds.get_data(tickers=",".join(item_list), fields=list(summary_fields.keys()), kind=0)
+    # 获取静态数据
+    static_data = ds.get_data(tickers=",".join(item_list),
+                              fields=list(summary_fields.keys()), kind=0)
     static_data = static_data.pivot(index='Instrument', columns='Datatype', values='Value')
     present_fields = [f for f in summary_fields.keys() if f in static_data.columns]
     static_data = static_data[present_fields].rename(columns=summary_fields)
 
-    return static_data, df  # <- return 对齐函数体
+    return static_data, df
 
+# ===========================
+# 绘图函数
+# ===========================
 def plot_commodity_data(name, static_data, df):
-    import math
     n_items = df.shape[1]
     ncols = 3
     nrows = math.ceil(n_items / ncols)
-
     fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(5*ncols, 3*nrows), squeeze=False)
     plt.subplots_adjust(hspace=0.5, wspace=0.3)
 
@@ -98,14 +100,14 @@ def plot_commodity_data(name, static_data, df):
         X = mdates.date2num(pd.to_datetime(s.index))
         y = s.values
 
-        # Safe title lookup
+        # 安全获取名称
         name_key = s.name[0] if isinstance(s.name, (list, tuple)) else s.name
         if name_key in static_data.index and 'Name' in static_data.columns:
             title = static_data.loc[name_key]['Name']
         else:
             title = str(name_key)
 
-        # Trend line
+        # 趋势线
         if len(s) >= 2:
             z = np.polyfit(X, y, 1)
             p = np.poly1d(z)
@@ -119,7 +121,7 @@ def plot_commodity_data(name, static_data, df):
         for tick in ax.get_xticklabels():
             tick.set_rotation(45)
 
-    # Hide empty subplots
+    # 隐藏空白子图
     total_slots = nrows * ncols
     for extra in range(n_items, total_slots):
         row, col = divmod(extra, ncols)
@@ -128,8 +130,9 @@ def plot_commodity_data(name, static_data, df):
     st.pyplot(fig)
     st.dataframe(static_data)
 
-
+# ===========================
 # Streamlit UI
+# ===========================
 st.title('Commodity Overview Dashboard')
 
 commodity_options = list(commodities.keys())
