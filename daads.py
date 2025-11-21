@@ -7,7 +7,10 @@ import DatastreamPy as dsweb
 import pandas as pd
 
 # Initialize Datastream
-ds = dsweb.DataClient(None, 'jiachen.tian@allianz-trade.com', 'Sunmeiqing414516!')
+
+username = st.secrets["jiachen.tian@allianz-trade.com"]
+password = st.secrets["Sunmeiqing414516!"]
+ds = dsweb.DataClient(None, username, password)
 
 summary_fields = {
     'NAME':'Name',
@@ -47,7 +50,7 @@ commodities = {
     }
 }
 
-@st.cache
+@st.cache_data(ttl=600)  
 def fetch_data(commodity_name, item_list, time_range):
     # Determine the start date based on the selected time range
     time_map = {
@@ -59,12 +62,16 @@ def fetch_data(commodity_name, item_list, time_range):
     start_date = time_map.get(time_range, '-1Y')  # Default to 1Y if invalid
     today_str = pd.Timestamp.today().strftime('%Y-%m-%d')
     # Fetch data for the selected time range
-    df = ds.get_data(tickers=",".join(item_list), start=start_date, end=today_str)
+    df = ds.get_data(tickers=",".join(item_list), start=start_date, kind=1)
+
 
    
     static_data = ds.get_data(tickers=",".join(item_list), fields=list(summary_fields.keys()), kind=0)
-    static_data = static_data.pivot(index='Instrument', columns='Datatype')["Value"]
-    static_data = static_data[list(summary_fields.keys())].rename(columns=summary_fields)
+    static_data = static_data.pivot(index='Instrument', columns='Datatype', values='Value')
+present_fields = [f for f in summary_fields.keys() if f in static_data.columns]
+static_data = static_data[present_fields].rename(columns=summary_fields)
+
+    
     
     return static_data, df
 
@@ -87,7 +94,11 @@ def plot_commodity_data(name, static_data, df):
 
         # Safe title lookup (works whether the column name is a tuple or a string)
         name_key = s.name[0] if isinstance(s.name, (list, tuple)) else s.name
-        title = static_data.loc[name_key]['Name'] if (name_key in static_data.index and 'Name' in static_data.columns) else str(name_key)
+if name_key in static_data.index and 'Name' in static_data.columns:
+    title = static_data.loc[name_key]['Name']
+else:
+    title = str(name_key)
+ if (name_key in static_data.index and 'Name' in static_data.columns) else str(name_key)
 
         
         if len(s) >= 2:
