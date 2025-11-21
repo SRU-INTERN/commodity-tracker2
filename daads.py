@@ -68,12 +68,12 @@ def fetch_data(commodity_name, item_list, time_range):
    
     static_data = ds.get_data(tickers=",".join(item_list), fields=list(summary_fields.keys()), kind=0)
     static_data = static_data.pivot(index='Instrument', columns='Datatype', values='Value')
-present_fields = [f for f in summary_fields.keys() if f in static_data.columns]
-static_data = static_data[present_fields].rename(columns=summary_fields)
+    present_fields = [f for f in summary_fields.keys() if f in static_data.columns]
+    static_data = static_data[present_fields].rename(columns=summary_fields)
 
     
     
-    return static_data, df
+return static_data, df
 
 def plot_commodity_data(name, static_data, df):
     fig, axs = plt.subplots(nrows=4, ncols=3, figsize=(20, 20))
