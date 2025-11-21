@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import DatastreamPy as dsweb
 import pandas as pd
+pip install --upgrade DatastreamPy
 
 # Initialize Datastream
 import DatastreamPy as dsweb
