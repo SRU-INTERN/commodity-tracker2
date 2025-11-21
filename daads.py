@@ -1,13 +1,11 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import dateutil
 import matplotlib.dates as mdates
 import DatastreamPy as dsweb
 import pandas as pd
 
 # Initialize Datastream
-
 username = st.secrets["jiachen.tian@allianz-trade.com"]
 password = st.secrets["Sunmeiqing414516!"]
 ds = dsweb.DataClient(None, username, password)
@@ -50,7 +48,7 @@ commodities = {
     }
 }
 
-@st.cache_data(ttl=600)  
+@st.cache_data(ttl=600)
 def fetch_data(commodity_name, item_list, time_range):
     # Determine the start date based on the selected time range
     time_map = {
@@ -59,30 +57,32 @@ def fetch_data(commodity_name, item_list, time_range):
         '3Y': '-3Y',
         '5Y': '-5Y'
     }
-    start_date = time_map.get(time_range, '-1Y')  # Default to 1Y if invalid
-    today_str = pd.Timestamp.today().strftime('%Y-%m-%d')
-    # Fetch data for the selected time range
+    start_date = time_map.get(time_range, '-1Y')  # Default to 1Y
+
+    # Fetch time series data
     df = ds.get_data(tickers=",".join(item_list), start=start_date, kind=1)
 
-
-   
+    # Fetch static snapshot
     static_data = ds.get_data(tickers=",".join(item_list), fields=list(summary_fields.keys()), kind=0)
     static_data = static_data.pivot(index='Instrument', columns='Datatype', values='Value')
     present_fields = [f for f in summary_fields.keys() if f in static_data.columns]
     static_data = static_data[present_fields].rename(columns=summary_fields)
 
-    
-    
-return static_data, df
+    return static_data, df  # <- return 对齐函数体
 
 def plot_commodity_data(name, static_data, df):
-    fig, axs = plt.subplots(nrows=4, ncols=3, figsize=(20, 20))
+    import math
+    n_items = df.shape[1]
+    ncols = 3
+    nrows = math.ceil(n_items / ncols)
+
+    fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(5*ncols, 3*nrows), squeeze=False)
     plt.subplots_adjust(hspace=0.5, wspace=0.3)
 
-    for index in range(df.shape[1]):
-        ax = axs[int(index/3), int(index%3)]
+    for index in range(n_items):
+        row, col = divmod(index, ncols)
+        ax = axs[row][col]
 
-        
         s = df.iloc[:, index].dropna()
         if s.empty:
             ax.set_title("No recent data")
@@ -92,39 +92,42 @@ def plot_commodity_data(name, static_data, df):
         X = mdates.date2num(pd.to_datetime(s.index))
         y = s.values
 
-        # Safe title lookup (works whether the column name is a tuple or a string)
+        # Safe title lookup
         name_key = s.name[0] if isinstance(s.name, (list, tuple)) else s.name
         if name_key in static_data.index and 'Name' in static_data.columns:
             title = static_data.loc[name_key]['Name']
         else:
             title = str(name_key)
-            if (name_key in static_data.index and 'Name' in static_data.columns)
-            else str(name_key)
-            if len(s) >= 2:
+
+        # Trend line
+        if len(s) >= 2:
             z = np.polyfit(X, y, 1)
             p = np.poly1d(z)
-            ax.plot(X, p(X), "r--")
+            ax.plot_date(mdates.num2date(X), p(X), linestyle='--', marker=None)
 
-        ax.plot(X, y)
-        loc = mdates.AutoDateLocator()
-        years_fmt = mdates.DateFormatter('%Y-%m')
+        ax.plot_date(mdates.num2date(X), y, linestyle='-', marker=None)
         ax.set_title(title)
-        ax.xaxis.set_major_formatter(years_fmt)
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
         ax.xaxis.set_minor_locator(mdates.MonthLocator())
-        ax.xaxis.set_major_locator(loc)
+        ax.xaxis.set_major_locator(mdates.AutoDateLocator())
         for tick in ax.get_xticklabels():
             tick.set_rotation(45)
+
+    # Hide empty subplots
+    total_slots = nrows * ncols
+    for extra in range(n_items, total_slots):
+        row, col = divmod(extra, ncols)
+        axs[row][col].axis('off')
 
     st.pyplot(fig)
     st.dataframe(static_data)
 
 
-
+# Streamlit UI
 st.title('Commodity Overview Dashboard')
 
 commodity_options = list(commodities.keys())
 selected_commodity = st.selectbox('Select a commodity category', commodity_options)
-
 
 time_range = st.selectbox('Select time range', ['1Y', '2Y', '3Y', '5Y'])
 
