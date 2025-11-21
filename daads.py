@@ -95,8 +95,8 @@ def plot_commodity_data(name, static_data, df):
         # Safe title lookup (works whether the column name is a tuple or a string)
         name_key = s.name[0] if isinstance(s.name, (list, tuple)) else s.name
         if name_key in static_data.index and 'Name' in static_data.columns:
-    title = static_data.loc[name_key]['Name']
-else:
+            title = static_data.loc[name_key]['Name']
+        else:
     title = str(name_key)
     if (name_key in static_data.index and 'Name' in static_data.columns) else str(name_key)
     if len(s) >= 2:
