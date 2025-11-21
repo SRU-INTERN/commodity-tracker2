@@ -6,8 +6,10 @@ import DatastreamPy as dsweb
 import pandas as pd
 
 # Initialize Datastream
-username = st.secrets[DS_USERNAME ="jiachen.tian@allianz-trade.com"]
-password = st.secrets[DS_PASSWORD ="Sunmeiqing414516!"]
+DS_USERNAME = "jiachen.tian@allianz-trade.com"
+DS_PASSWORD = "Sunmeiqing414516!"
+username = st.secrets["DS_USERNAME"]
+password = st.secrets["DS_PASSWORD"]
 ds = dsweb.DataClient(None, username, password)
 
 summary_fields = {
