@@ -3,4 +3,4 @@ numpy
 pandas
 matplotlib
 python-dateutil
-DatastreamPy
+DatastreamPy>=2.0.0
