@@ -1,15 +1,4 @@
-import streamlit as st
-
-import numpy as np
-
-import matplotlib.pyplot as plt
-
-import dateutil
-
-import matplotlib.dates as mdates
 
 import DatastreamPy as dsweb
-
-import pandas as pd
-
 ds = dsweb.DataClient(None, 'yuwanqing.cao@allianz-trade.com', 'Cywq19760224!')
+print(ds)
