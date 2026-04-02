@@ -12,4 +12,7 @@ import DatastreamPy as dsweb
 
 import pandas as pd
 
-ds = dsweb.DataClient(None, 'yuwanqing.cao@allianz-trade.com', 'Cywq19760224!')
+
+import DatastreamPy as dsweb
+ds = dsweb.DataClient(None, "yuwanqing.cao@allianz-trade.com", "Cywq19760224!")
+print("Connected")
