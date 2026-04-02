@@ -4,5 +4,5 @@ pandas
 matplotlib
 python-dateutil
 pytz
-DatastreamPy==2.0.0
+DatastreamPy>==2.0.0
 
