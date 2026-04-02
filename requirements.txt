@@ -3,6 +3,5 @@ numpy
 pandas
 matplotlib
 python-dateutil
-pytz
 DatastreamPy>==2.0.0
 
