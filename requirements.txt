@@ -1,6 +1,6 @@
 streamlit
 numpy
-pandas
+pandas==2.1.4
 matplotlib
 python-dateutil
 DatastreamPy>==2.0.0
