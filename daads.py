@@ -4,7 +4,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-import python-dateutil
+import dateutil
 
 import matplotlib.dates as mdates
 
