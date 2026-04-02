@@ -8,7 +8,7 @@ import dateutil
 
 import matplotlib.dates as mdates
 
-import DatastreamPy>=2.0.0 as dsweb
+import DatastreamPy as dsweb
 
 import pandas as pd
  
