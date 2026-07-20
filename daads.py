@@ -14,7 +14,7 @@ import pandas as pd
  
 # Initialize Datastream
 
-ds = dsweb.DataClient(None, 'yuwanqing.cao@allianz-trade.com', 'Cywq19760224!')
+ds = dsweb.DataClient(None, 'bilal.ahmed@allianz-trade.com', 'BA@03039004112')
  
 summary_fields = {
 
