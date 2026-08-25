@@ -88,7 +88,7 @@ commodities = {
 
 }
  
-@st.cache
+@st.cache_data
 
 def fetch_data(commodity_name, item_list, time_range):
 
